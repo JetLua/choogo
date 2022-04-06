@@ -14,11 +14,49 @@ bot.on('message', ctx => {
 bot.start()
 
 router.post('/webhook', async ctx => {
-  const result = await ctx.request.body({type: 'json'}).value.catch(() => null)
-  // ctx.response.body = await result.value
-  if (!result) return ctx.response.body = 'Whoops!'
+  interface Data {
+    line_items?: Array<{
+      title: string
+      quantity: number
+      price: string
+      price_set: {
+        shop_money: {
+          currency_code: string
+        }
+      }
+    }>
+    email?: string
+    currency?: string
+    name?: string
+    cancel_reason?: string
+    total_price?: string
+  }
+  const data: Data = await ctx.request.body({type: 'json'}).value.catch(() => null)
+  if (!data) return ctx.response.body = 'Whoops!'
 
-  bot.api.sendMessage(1335910130, 'Got It!')
+  const topic = ctx.request.headers.get('X-Shopify-Topic')
+  const domain = ctx.request.headers.get('X-Shopify-Shop-Domain')
+
+  switch (topic) {
+    case 'carts/update': {
+      const msg = data.line_items!.map(item => {
+        return `[${item.title}](https://${domain}/products/${item.title}) ${item.quantity} ${item.price}${item.price_set.shop_money.currency_code}`
+      }).join('\n')
+      bot.api.sendMessage(969013906, msg, {parse_mode: 'MarkdownV2'})
+      break
+    }
+
+    case 'order/paid': {
+      const msg = [
+        `email: ${data.email}`,
+        `price: ${data.total_price}${data.currency}`,
+        `cancel_reason: ${data.cancel_reason}`
+      ].join('\n')
+      bot.api.sendMessage(969013906, msg, {parse_mode: 'MarkdownV2'})
+      break
+    }
+  }
+
   ctx.response.body = 'ok'
 })
 
