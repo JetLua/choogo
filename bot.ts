@@ -65,7 +65,7 @@ bot.start()
 
 function get(type: 'job' | 'race' | 'hex' | 'equip') {
   return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`)
-    .then(res => res.json()).catch(() => null)
+    .then(res => res.json()).then(({data}) => data).catch(() => null)
 }
 
 function allow(cid: number, mid: number) {
