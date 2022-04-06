@@ -13,6 +13,23 @@ bot.on('message', ctx => {
 
 bot.start()
 
+function sendMessage(raw: string, to: string | number = 969013906) {
+  raw = raw
+    .replaceAll('_', '\\_')
+    .replaceAll('(', '\\(')
+    .replaceAll('.', '\\.')
+    .replaceAll(')', '\\)')
+    .replaceAll('*', '\\*')
+    .replaceAll('~', '\\~')
+    .replaceAll('#', '\\#')
+    .replaceAll('+', '\\+')
+    .replaceAll('-', '\\-')
+    .replaceAll('=', '\\=')
+    .replaceAll('{', '\\{')
+    .replaceAll('}', '\\}')
+  bot.api.sendMessage(to, raw, {parse_mode: 'MarkdownV2'})
+}
+
 router.post('/webhook', async ctx => {
   interface Data {
     line_items?: Array<{
@@ -39,20 +56,18 @@ router.post('/webhook', async ctx => {
 
   switch (topic) {
     case 'carts/update': {
-      const msg = data.line_items!.map(item => {
+      sendMessage(data.line_items!.map(item => {
         return `[${item.title}](https://${domain}/products/${item.title}) ${item.quantity} ${item.price}${item.price_set.shop_money.currency_code}`
-      }).join('\n').replaceAll('.', '\.').replaceAll('-', '\-')
-      bot.api.sendMessage(969013906, msg, {parse_mode: 'MarkdownV2'})
+      }).join('\n'))
       break
     }
 
     case 'order/paid': {
-      const msg = [
+      sendMessage([
         `email: ${data.email}`,
         `price: ${data.total_price}${data.currency}`,
         `cancel_reason: ${data.cancel_reason}`
-      ].join('\n').replaceAll('.', '\.').replaceAll('-', '\-')
-      bot.api.sendMessage(969013906, msg, {parse_mode: 'MarkdownV2'})
+      ].join('\n'))
       break
     }
   }
