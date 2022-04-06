@@ -61,8 +61,6 @@ bot.api.setMyCommands([
   {command: 'game', description: '霓虹之夜'}
 ])
 
-bot.start()
-
 function get(type: 'job' | 'race' | 'hex' | 'equip') {
   return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`)
     .then(res => res.json()).then(({data}) => data).catch(() => null)
@@ -84,5 +82,7 @@ function revoke(cid: number, mid: number) {
   arr.splice(index, 1)
   if (!arr.length) queue.delete(cid)
 }
+
+if (import.meta.main) bot.start()
 
 export default bot

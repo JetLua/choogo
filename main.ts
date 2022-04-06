@@ -5,6 +5,9 @@ const app = new Application()
 const router = new Router()
 const ME = Deno.env.get('ME')!
 
+bot.start()
+
+
 function sendMessage(raw: string, to: string | number = ME) {
   raw && bot.api.sendMessage(to, raw, {parse_mode: 'HTML'})
 }
