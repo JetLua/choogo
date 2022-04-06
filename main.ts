@@ -41,7 +41,7 @@ router.post('/webhook', async ctx => {
     case 'carts/update': {
       const msg = data.line_items!.map(item => {
         return `[${item.title}](https://${domain}/products/${item.title}) ${item.quantity} ${item.price}${item.price_set.shop_money.currency_code}`
-      }).join('\n')
+      }).join('\n').replaceAll('.', '\.').replaceAll('-', '\-')
       bot.api.sendMessage(969013906, msg, {parse_mode: 'MarkdownV2'})
       break
     }
@@ -51,7 +51,7 @@ router.post('/webhook', async ctx => {
         `email: ${data.email}`,
         `price: ${data.total_price}${data.currency}`,
         `cancel_reason: ${data.cancel_reason}`
-      ].join('\n')
+      ].join('\n').replaceAll('.', '\.').replaceAll('-', '\-')
       bot.api.sendMessage(969013906, msg, {parse_mode: 'MarkdownV2'})
       break
     }
