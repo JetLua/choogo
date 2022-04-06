@@ -4,17 +4,10 @@ const TOKEN = Deno.env.get('TG_BOT')!
 
 const bot = new Bot(TOKEN)
 
-type Message = Awaited<ReturnType<Context['reply']>>
-
 let jobs: Array<any>
 
-const messages = {
-  intro: null as unknown as Message,
-  keyboard: null as unknown as Message
-}
-
 bot.command('game', async ctx => {
-  messages.keyboard = await ctx.reply('👌', {
+  await ctx.reply('👌', {
     reply_markup: new InlineKeyboard()
       .text('职业', 'job').text('特质', 'race').row()
       .text('海克斯', 'hex').text('装备', 'equip')
@@ -22,7 +15,8 @@ bot.command('game', async ctx => {
 })
 
 bot.on('callback_query:data', async ctx => {
-  const qs = ctx.callbackQuery.data
+  const {data: qs, message} = ctx.callbackQuery
+
   if (qs === 'job') {
     const data = await get('job')
 
@@ -40,7 +34,7 @@ bot.on('callback_query:data', async ctx => {
       !((i + 1) % 2) && keyboard.row()
     })
 
-    bot.api.editMessageReplyMarkup(messages.keyboard.chat.id, messages.keyboard.message_id, {
+    bot.api.editMessageReplyMarkup(message!.chat.id, message!.message_id, {
       reply_markup: keyboard
     })
   } else if (qs.startsWith('jobs')) {
@@ -54,8 +48,7 @@ bot.on('callback_query:data', async ctx => {
       }).join('\n')
     ].join('\n')
     ctx.answerCallbackQuery({text: '😊'})
-    if (messages.intro) return bot.api.editMessageText(messages.intro.chat.id, messages.intro.message_id, msg)
-    messages.intro = await ctx.reply(msg)
+    bot.api.editMessageText(message!.chat.id, message!.message_id, msg, {reply_markup: message!.reply_markup})
   } else {
     ctx.answerCallbackQuery({text: '😭'})
   }
