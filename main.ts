@@ -8,16 +8,16 @@ const TG_BOT = Deno.env.get('TG_BOT')!
 const bot = new Bot(TG_BOT)
 
 bot.on('message', ctx => {
-  ctx.reply('Copy')
+  ctx.reply(`Copy: ${ctx.message}`)
 })
 
 bot.start()
 
-router.get('/webhook', async ctx => {
-  // const result = ctx.request.body({type: 'json'})
+router.post('/webhook', async ctx => {
+  const result = ctx.request.body({type: 'json'})
   // ctx.response.body = await result.value
-  // return ctx.
-  ctx.response.body = TG_BOT
+  bot.api.sendMessage(1335910130, await result.value.catch(() => 'Whoops!'))
+  ctx.response.body = 'ok'
 })
 
 router.get('/', async ctx => {
