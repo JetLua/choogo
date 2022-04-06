@@ -1,8 +1,8 @@
 import {Bot, InlineKeyboard} from 'grammy'
 
 const TOKEN = Deno.env.get('TG_BOT')!
-
 const bot = new Bot(TOKEN)
+const queue = new Map<number, Array<number>>()
 
 let jobs: Array<any>
 
@@ -16,27 +16,28 @@ bot.command('game', async ctx => {
 
 bot.on('callback_query:data', async ctx => {
   const {data: qs, message} = ctx.callbackQuery
+  const cid = message!.chat.id
+  const mid = message!.message_id
 
   if (qs === 'job') {
-    const data = await get('job')
+    jobs ??= await get('job')
 
-    if (!data) return ctx.answerCallbackQuery({
+    if (!jobs) return ctx.answerCallbackQuery({
       text: '获取资料失败😭'
     })
 
     ctx.answerCallbackQuery({text: '😊'})
 
-    const list = jobs = data.data
     const keyboard = new InlineKeyboard()
 
-    list.forEach((item: any, i: number) => {
+    jobs.forEach((item: any, i: number) => {
       keyboard.text(item.name, `jobs:${item.jobId}`)
       !((i + 1) % 2) && keyboard.row()
     })
 
-    bot.api.editMessageReplyMarkup(message!.chat.id, message!.message_id, {
+    allow(cid, mid) && bot.api.editMessageReplyMarkup(cid, mid, {
       reply_markup: keyboard
-    })
+    }).then(() => revoke(cid, mid))
   } else if (jobs && qs.startsWith('jobs')) {
     const jobId = qs.replace('jobs:', '')
     const data = jobs.find(item => item.jobId === jobId)
@@ -48,7 +49,9 @@ bot.on('callback_query:data', async ctx => {
       }).join('\n')
     ].join('\n')
     ctx.answerCallbackQuery({text: '😊'})
-    bot.api.editMessageText(message!.chat.id, message!.message_id, msg, {reply_markup: message!.reply_markup})
+    allow(cid, mid) && bot.api.editMessageText(cid, mid, msg, {
+      reply_markup: message!.reply_markup
+    }).then(() => revoke(cid, mid))
   } else {
     ctx.answerCallbackQuery({text: '😭'})
   }
@@ -60,9 +63,27 @@ bot.api.setMyCommands([
 
 bot.start()
 
-function get(type: 'job' | 'race' | 'hex' | 'equip') {
+async function get(type: 'job' | 'race' | 'hex' | 'equip') {
   return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`)
     .then(res => res.json()).catch(() => null)
+}
+
+function allow(cid: number, mid: number) {
+  if (!queue.has(cid)) {
+    queue.set(cid, [mid])
+    return true
+  } else if (queue.get(cid)!.includes(mid)) return false
+  queue.get(cid)!.push(mid)
+  return true
+}
+
+function revoke(cid: number, mid: number) {
+  const arr = queue.get(cid)
+  if (!arr) return
+  const index = arr.indexOf(mid)
+  if (index === -1) return
+  arr.splice(index, 1)
+  if (!arr.length) queue.delete(cid)
 }
 
 export default bot
