@@ -3,8 +3,9 @@ import {Bot} from 'grammy'
 
 const app = new Application()
 const router = new Router()
+const TG_BOT = Deno.env.get('TG_BOT')!
 
-const bot = new Bot(Deno.env.get('TG_BOT')!)
+const bot = new Bot(TG_BOT)
 
 bot.on('message', ctx => {
   ctx.reply('Copy')
@@ -16,7 +17,7 @@ router.get('/webhook', async ctx => {
   // const result = ctx.request.body({type: 'json'})
   // ctx.response.body = await result.value
   // return ctx.
-  ctx.response.body = 'webhook'
+  ctx.response.body = TG_BOT
 })
 
 router.get('/', async ctx => {
