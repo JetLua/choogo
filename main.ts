@@ -8,6 +8,9 @@ router.get('/webbook', async ctx => {
   ctx.response.body = await result.value
 })
 
+router.get('/', async ctx => {
+  ctx.response.body = 'Hi, I\'m JetLu.'
+})
 app.use(router.allowedMethods())
 app.use(router.routes())
 app.listen({port: 8080})
