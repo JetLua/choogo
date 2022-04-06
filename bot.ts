@@ -69,11 +69,10 @@ function get(type: 'job' | 'race' | 'hex' | 'equip') {
 }
 
 function allow(cid: number, mid: number) {
-  if (!queue.has(cid)) {
-    queue.set(cid, [mid])
-    return true
-  } else if (queue.get(cid)!.includes(mid)) return false
-  queue.get(cid)!.push(mid)
+  const arr = queue.get(cid)
+  if (!arr) return queue.set(cid, [mid])
+  if (arr.includes(mid)) return false
+  arr.push(mid)
   return true
 }
 
