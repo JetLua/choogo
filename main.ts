@@ -15,7 +15,7 @@ bot.on('message', ctx => {
 bot.start()
 
 function sendMessage(raw: string, to: string | number = ME) {
-  bot.api.sendMessage(to, raw, {parse_mode: 'HTML'})
+  raw && bot.api.sendMessage(to, raw, {parse_mode: 'HTML'})
 }
 
 function encode(raw: string) {
@@ -57,7 +57,7 @@ router.post('/webhook', async ctx => {
       break
     }
 
-    case 'order/paid': {
+    case 'orders/paid': {
       sendMessage([
         '<b>付款订单</b>',
         `邮箱: ${data.email}`,
