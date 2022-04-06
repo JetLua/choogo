@@ -4,6 +4,7 @@ import {Bot} from 'grammy'
 const app = new Application()
 const router = new Router()
 const TG_BOT = Deno.env.get('TG_BOT')!
+const ME = Deno.env.get('ME')!
 
 const bot = new Bot(TG_BOT)
 
@@ -13,21 +14,15 @@ bot.on('message', ctx => {
 
 bot.start()
 
-function sendMessage(raw: string, to: string | number = 969013906) {
-  raw = raw
-    .replaceAll('_', '\\_')
-    .replaceAll('(', '\\(')
-    .replaceAll('.', '\\.')
-    .replaceAll(')', '\\)')
-    .replaceAll('*', '\\*')
-    .replaceAll('~', '\\~')
-    .replaceAll('#', '\\#')
-    .replaceAll('+', '\\+')
-    .replaceAll('-', '\\-')
-    .replaceAll('=', '\\=')
-    .replaceAll('{', '\\{')
-    .replaceAll('}', '\\}')
-  bot.api.sendMessage(to, raw, {parse_mode: 'MarkdownV2'})
+function sendMessage(raw: string, to: string | number = ME) {
+  bot.api.sendMessage(to, raw, {parse_mode: 'HTML'})
+}
+
+function encode(raw: string) {
+  return raw
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('&', '&amp;')
 }
 
 router.post('/webhook', async ctx => {
@@ -57,16 +52,17 @@ router.post('/webhook', async ctx => {
   switch (topic) {
     case 'carts/update': {
       sendMessage(data.line_items!.map(item => {
-        return `[${item.title}](https://${domain}/products/${item.title}) ${item.quantity} ${item.price}${item.price_set.shop_money.currency_code}`
+        return `商品: <a href="https://${domain}/products/${encodeURIComponent(item.title)}">${encode(item.title)}</a> 数量: ${item.quantity} 单价: ${item.price}${item.price_set.shop_money.currency_code}`
       }).join('\n'))
       break
     }
 
     case 'order/paid': {
       sendMessage([
-        `email: ${data.email}`,
-        `price: ${data.total_price}${data.currency}`,
-        `cancel_reason: ${data.cancel_reason}`
+        '<b>付款订单</b>',
+        `邮箱: ${data.email}`,
+        `金额: ${data.total_price}${data.currency}`,
+        `退款理由(?): ${data.cancel_reason}`
       ].join('\n'))
       break
     }
