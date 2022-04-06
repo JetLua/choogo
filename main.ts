@@ -14,9 +14,11 @@ bot.on('message', ctx => {
 bot.start()
 
 router.post('/webhook', async ctx => {
-  const result = ctx.request.body({type: 'json'})
+  const result = await ctx.request.body({type: 'json'}).value.catch(() => null)
   // ctx.response.body = await result.value
-  bot.api.sendMessage(1335910130, await result.value.catch(() => 'Whoops!'))
+  if (!result) return ctx.response.body = 'Whoops!'
+
+  bot.api.sendMessage(1335910130, 'Got It!')
   ctx.response.body = 'ok'
 })
 
