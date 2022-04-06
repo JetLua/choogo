@@ -8,7 +8,7 @@ let jobs: Array<any>
 let races: Array<any>
 
 bot.command('game', async ctx => {
-  await ctx.reply('============== 请选择 ==============', {
+  await ctx.reply('🤔', {
     reply_markup: new InlineKeyboard()
       .text('职业', 'job').text('特质', 'race').row()
       .text('海克斯', 'hex').text('装备', 'equip')
