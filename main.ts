@@ -1,18 +1,9 @@
 import {Application, Router} from 'oak'
-import {Bot} from 'grammy'
+import bot from './bot.ts'
 
 const app = new Application()
 const router = new Router()
-const TG_BOT = Deno.env.get('TG_BOT')!
 const ME = Deno.env.get('ME')!
-
-const bot = new Bot(TG_BOT)
-
-bot.on('message', ctx => {
-  ctx.reply(`Copy: ${ctx.message.text}`)
-})
-
-bot.start()
 
 function sendMessage(raw: string, to: string | number = ME) {
   raw && bot.api.sendMessage(to, raw, {parse_mode: 'HTML'})
