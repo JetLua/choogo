@@ -37,7 +37,7 @@ bot.on('callback_query:data', async ctx => {
     bot.api.editMessageReplyMarkup(message!.chat.id, message!.message_id, {
       reply_markup: keyboard
     })
-  } else if (qs.startsWith('jobs')) {
+  } else if (jobs && qs.startsWith('jobs')) {
     const jobId = qs.replace('jobs:', '')
     const data = jobs.find(item => item.jobId === jobId)
     const msg = [
