@@ -63,7 +63,7 @@ bot.api.setMyCommands([
 
 bot.start()
 
-async function get(type: 'job' | 'race' | 'hex' | 'equip') {
+function get(type: 'job' | 'race' | 'hex' | 'equip') {
   return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`)
     .then(res => res.json()).catch(() => null)
 }
