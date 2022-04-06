@@ -42,6 +42,7 @@ router.post('/webhook', async ctx => {
     name?: string
     cancel_reason?: string
     total_price?: string
+    phone?: string
   }
   const data: Data = await ctx.request.body({type: 'json'}).value.catch(() => null)
   if (!data) return ctx.response.body = 'Whoops!'
@@ -51,22 +52,31 @@ router.post('/webhook', async ctx => {
 
   switch (topic) {
     case 'carts/update': {
-      sendMessage(data.line_items!.map(item => {
-        return [
-          `商品: <a href="https://${domain}/products/${encodeURIComponent(item.title.replaceAll(' ', '-'))}">${encode(item.title)}</a>`,
-          `数量: ${item.quantity}`,
-          `单价: ${item.price}${item.price_set.shop_money.currency_code}`
-        ].join('\n')
-      }).join('\n\n'))
+      // sendMessage(data.line_items!.map(item => {
+      //   return [
+      //     `商品: <a href="https://${domain}/products/${encodeURIComponent(item.title.replaceAll(' ', '-'))}">${encode(item.title)}</a>`,
+      //     `数量: ${item.quantity}`,
+      //     `单价: ${item.price}${item.price_set.shop_money.currency_code}`
+      //   ].join('\n')
+      // }).join('\n\n'))
+      break
+    }
+
+    case 'customers/create': {
+      sendMessage([
+        '<b>新客户</b>',
+        `邮箱: ${data.email}`,
+        `手机号: ${data.phone}`,
+        `货币: ${data.currency}`,
+      ].join('\n'))
       break
     }
 
     case 'orders/paid': {
       sendMessage([
-        '<b>付款订单</b>',
+        '<b>#付款订单</b>',
         `邮箱: ${data.email}`,
-        `金额: ${data.total_price}${data.currency}`,
-        `退款理由(?): ${data.cancel_reason}`
+        `金额: ${data.total_price}${data.currency}`
       ].join('\n'))
       break
     }
