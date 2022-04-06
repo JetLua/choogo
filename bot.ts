@@ -1,4 +1,4 @@
-import {Bot, InlineKeyboard, Context} from 'grammy'
+import {Bot, InlineKeyboard} from 'grammy'
 
 const TOKEN = Deno.env.get('TG_BOT')!
 
