@@ -5,9 +5,10 @@ const bot = new Bot(TOKEN)
 const queue = new Map<number, Array<number>>()
 
 let jobs: Array<any>
+let races: Array<any>
 
 bot.command('game', async ctx => {
-  await ctx.reply('👌', {
+  await ctx.reply('============== 请选择 ==============', {
     reply_markup: new InlineKeyboard()
       .text('职业', 'job').text('特质', 'race').row()
       .text('海克斯', 'hex').text('装备', 'equip')
@@ -22,15 +23,14 @@ bot.on('callback_query:data', async ctx => {
   if (qs === 'job') {
     jobs ??= await get('job')
 
-    if (!jobs) return ctx.answerCallbackQuery({
-      text: '获取资料失败😭'
-    })
+    if (!jobs) return ctx.answerCallbackQuery({text: '获取资料失败😭'})
 
     ctx.answerCallbackQuery({text: '😊'})
 
     const keyboard = new InlineKeyboard()
+    const _jobs = [...jobs, {name: '🔙', jobId: 'back'}]
 
-    jobs.forEach((item: any, i: number) => {
+    _jobs.forEach((item: any, i: number) => {
       keyboard.text(item.name, `jobs:${item.jobId}`)
       !((i + 1) % 2) && keyboard.row()
     })
@@ -38,9 +38,50 @@ bot.on('callback_query:data', async ctx => {
     allow(cid, mid) && bot.api.editMessageReplyMarkup(cid, mid, {
       reply_markup: keyboard
     }).then(() => revoke(cid, mid))
-  } else if (jobs && qs.startsWith('jobs')) {
+  } else if (qs === 'race') {
+    races ??= await get('race')
+
+    if (!races) return ctx.answerCallbackQuery({
+      text: '获取资料失败😭'
+    })
+
+    ctx.answerCallbackQuery({text: '😊'})
+
+    const keyboard = new InlineKeyboard()
+    const _races = [...races, {name: '🔙', raceId: 'back'}]
+
+    _races.forEach((item: any, i: number) => {
+      keyboard.text(item.name, `races:${item.raceId}`)
+      !((i + 1) % 2) && keyboard.row()
+    })
+
+    allow(cid, mid) && bot.api.editMessageReplyMarkup(cid, mid, {
+      reply_markup: keyboard
+    }).then(() => revoke(cid, mid))
+  } else if (qs.startsWith('jobs')) {
+    if (qs.endsWith('back')) return back(cid, mid)
+    jobs ??= await get('job')
+    if (!jobs) return ctx.answerCallbackQuery({text: '获取资料失败😭'})
+
     const jobId = qs.replace('jobs:', '')
     const data = jobs.find(item => item.jobId === jobId)
+    const msg = [
+      `${data.name}`,
+      `${data.introduce}`,
+      Object.entries(data.level).map(item => {
+        return `${item[0]}: ${item[1]}`
+      }).join('\n')
+    ].join('\n')
+    ctx.answerCallbackQuery({text: '😊'})
+    allow(cid, mid) && bot.api.editMessageText(cid, mid, msg, {
+      reply_markup: message!.reply_markup
+    }).then(() => revoke(cid, mid))
+  } else if (qs.startsWith('races')) {
+    if (qs.endsWith('back')) return back(cid, mid)
+    races ??= await get('race')
+    if (!races) return ctx.answerCallbackQuery({text: '获取资料失败😭'})
+    const raceId = qs.replace('races:', '')
+    const data = races.find(item => item.raceId === raceId)
     const msg = [
       `${data.name}`,
       `${data.introduce}`,
@@ -63,7 +104,9 @@ bot.api.setMyCommands([
 
 function get(type: 'job' | 'race' | 'hex' | 'equip') {
   return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`)
-    .then(res => res.json()).then(({data}) => data).catch(() => null)
+    .then(res => res.json())
+    .then(({data}) => data)
+    .catch(() => null)
 }
 
 function allow(cid: number, mid: number) {
@@ -81,6 +124,14 @@ function revoke(cid: number, mid: number) {
   if (index === -1) return
   arr.splice(index, 1)
   if (!arr.length) queue.delete(cid)
+}
+
+function back(cid: number, mid: number) {
+  return bot.api.editMessageText(cid, mid, '============== 请选择 ==============', {
+    reply_markup: new InlineKeyboard()
+      .text('职业', 'job').text('特质', 'race').row()
+      .text('海克斯', 'hex').text('装备', 'equip')
+  })
 }
 
 if (import.meta.main) bot.start()
