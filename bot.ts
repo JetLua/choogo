@@ -127,7 +127,7 @@ function revoke(cid: number, mid: number) {
 }
 
 function back(cid: number, mid: number) {
-  return bot.api.editMessageText(cid, mid, '============== 请选择 ==============', {
+  return bot.api.editMessageText(cid, mid, '🤔', {
     reply_markup: new InlineKeyboard()
       .text('职业', 'job').text('特质', 'race').row()
       .text('海克斯', 'hex').text('装备', 'equip')
