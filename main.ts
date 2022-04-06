@@ -52,8 +52,12 @@ router.post('/webhook', async ctx => {
   switch (topic) {
     case 'carts/update': {
       sendMessage(data.line_items!.map(item => {
-        return `商品: <a href="https://${domain}/products/${encodeURIComponent(item.title.replaceAll(' ', '-'))}">${encode(item.title)}</a> 数量: ${item.quantity} 单价: ${item.price}${item.price_set.shop_money.currency_code}`
-      }).join('\n'))
+        return [
+          `商品: <a href="https://${domain}/products/${encodeURIComponent(item.title.replaceAll(' ', '-'))}">${encode(item.title)}</a>`,
+          `数量: ${item.quantity}`,
+          `单价: ${item.price}${item.price_set.shop_money.currency_code}`
+        ].join('\n')
+      }).join('\n\n'))
       break
     }
 
