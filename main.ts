@@ -6,7 +6,7 @@ const router = new Router()
 
 const bot = new Bot(Deno.env.get('TG_BOT')!)
 
-bot.on('message', async ctx => {
+bot.on('message', ctx => {
   ctx.reply('Copy')
 })
 
