@@ -8,7 +8,7 @@ const TG_BOT = Deno.env.get('TG_BOT')!
 const bot = new Bot(TG_BOT)
 
 bot.on('message', ctx => {
-  ctx.reply(`Copy: ${ctx.message}`)
+  ctx.reply(`Copy: ${ctx.message.text}`)
 })
 
 bot.start()
