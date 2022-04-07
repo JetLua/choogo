@@ -7,7 +7,6 @@ const ME = Deno.env.get('ME')!
 
 bot.start()
 
-
 function sendMessage(raw: string, to: string | number = ME) {
   raw && bot.api.sendMessage(to, raw, {parse_mode: 'HTML'})
 }
@@ -85,4 +84,4 @@ router.get('/', async ctx => {
 
 app.use(router.allowedMethods())
 app.use(router.routes())
-app.listen({port: 8080})
+app.listen({port: 8090})
