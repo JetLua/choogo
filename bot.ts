@@ -137,7 +137,7 @@ function back(cid: number, mid: number) {
     reply_markup: new InlineKeyboard()
       .text('职业', 'job').text('特质', 'race').row()
       .text('海克斯', 'hex').text('装备', 'equip')
-  }).catch(err => console.log(err.message))
+  }).catch(console.error)
 }
 
 if (import.meta.main) bot.start()
