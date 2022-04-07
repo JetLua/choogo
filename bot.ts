@@ -7,6 +7,11 @@ const queue = new Map<number, Array<number>>()
 let jobs: Array<any>
 let races: Array<any>
 
+const ids = {
+  job: '',
+  race: ''
+}
+
 bot.command('game', async ctx => {
   await ctx.reply('🤔', {
     reply_markup: new InlineKeyboard()
@@ -64,6 +69,9 @@ bot.on('callback_query:data', async ctx => {
     if (!jobs) return ctx.answerCallbackQuery({text: '获取资料失败😭'}).catch(console.error)
 
     const jobId = qs.replace('jobs:', '')
+    if (jobId === ids.job) return ctx.answerCallbackQuery({text: '🤔'}).catch(console.error)
+    ids.job = jobId
+
     const data = jobs.find(item => item.jobId === jobId)
     const msg = [
       `${data.name}`,
@@ -81,6 +89,10 @@ bot.on('callback_query:data', async ctx => {
     races ??= await get('race')
     if (!races) return ctx.answerCallbackQuery({text: '获取资料失败😭'}).catch(console.error)
     const raceId = qs.replace('races:', '')
+
+    if (raceId === ids.race) return ctx.answerCallbackQuery({text: '🤔'}).catch(console.error)
+    ids.race = raceId
+
     const data = races.find(item => item.raceId === raceId)
     const msg = [
       `${data.name}`,
