@@ -98,6 +98,10 @@ bot.on('callback_query:data', async ctx => {
   }
 })
 
+bot.catch(err => {
+  console.log(err.message)
+})
+
 bot.api.setMyCommands([
   {command: 'game', description: '霓虹之夜'}
 ])
