@@ -103,10 +103,14 @@ bot.api.setMyCommands([
 ])
 
 function get(type: 'job' | 'race' | 'hex' | 'equip') {
-  return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`)
+  const controller = new AbortController()
+  setTimeout(() => controller.abort(new Error('timeout')), 2e3)
+  return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`, {
+    signal: controller.signal
+  })
     .then(res => res.json())
     .then(({data}) => data)
-    .catch(() => null)
+    .catch(err => console.log(err.message))
 }
 
 function allow(cid: number, mid: number) {
@@ -131,7 +135,7 @@ function back(cid: number, mid: number) {
     reply_markup: new InlineKeyboard()
       .text('职业', 'job').text('特质', 'race').row()
       .text('海克斯', 'hex').text('装备', 'equip')
-  })
+  }).catch(err => console.log(err.message))
 }
 
 if (import.meta.main) bot.start()
