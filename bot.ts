@@ -117,10 +117,8 @@ bot.api.setMyCommands([
 ])
 
 function get(type: 'job' | 'race' | 'hex' | 'equip') {
-  const controller = new AbortController()
-  setTimeout(() => controller.abort(new Error('timeout')), 2e3)
   return fetch(`https://game.gtimg.cn/images/lol/act/img/tft/js/${type}.js`, {
-    signal: controller.signal
+    signal: AbortSignal.timeout(3e3)
   })
     .then(res => res.json())
     .then(({data}) => data)
