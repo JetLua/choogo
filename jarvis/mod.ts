@@ -78,6 +78,8 @@ async function get(msg: string) {
 function handle(id: number, data: WitData) {
   let intent = data.intents[0]
 
+  console.log(data)
+
   if (!intent) {
     for (const k in data.entities) {
       if (k === 'food:food' || k === 'cuisine:cuisine') {
@@ -98,7 +100,6 @@ function handle(id: number, data: WitData) {
       return action.do()
     }
 
-    case 'chat':
     case 'food': {
       let location = ''
       let cuisine = ''
@@ -109,6 +110,20 @@ function handle(id: number, data: WitData) {
       const action = new Food({location, cuisine})
       states.set(id, action)
       return action.do()
+    }
+
+    case 'greeting': {
+      const sentences = ['哥只是个传说', '聊五毛吗', '对，就🦐🚗🥚']
+      return sentences[sentences.length * Math.random() | 0]
+    }
+
+    default: {
+      for (const k in data.entities) {
+        const sentences =  ['好菜啊', '我休息一会，给你追上我的机会', '菜要承认，挨打站稳']
+        if (k === 'taunt:taunt') return sentences[sentences.length * Math.random() | 0]
+      }
+
+      return '无可奉告🙊'
     }
   }
 }
