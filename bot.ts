@@ -1,5 +1,5 @@
 import {Bot, InlineKeyboard} from 'grammy'
-import * as jarvis from './jarvis.ts'
+import * as jarvis from './jarvis/mod.ts'
 
 const TOKEN = Deno.env.get('TG_BOT')!
 const bot = new Bot(TOKEN)
@@ -13,17 +13,7 @@ const ids = {
   race: ''
 }
 
-bot.on('message:text', async ctx => {
-  let text = ctx.message.text
-  const botName = ctx.me.username
-  if ((await ctx.getChat()).type === 'group') {
-    if (!text.includes(botName)) return
-    text = text.replaceAll(`@${botName}`, '')
-  }
-  const answer = await jarvis.ask(text).catch(() => '')
-  if (!answer) ctx.reply('嗯哼...')
-  ctx.reply(answer)
-})
+bot.on(['message:text', 'poll_answer'], jarvis.reply.bind(bot))
 
 bot.command('game', async ctx => {
   await ctx.reply('🤔', {
