@@ -112,6 +112,7 @@ function handle(id: number, data: WitData) {
       return action.do()
     }
 
+    case 'chat':
     case 'greeting': {
       const sentences = ['哥只是个传说', '聊五毛吗', '对，就🦐🚗🥚']
       return sentences[sentences.length * Math.random() | 0]
